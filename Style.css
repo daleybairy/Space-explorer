@@ -31,3 +31,102 @@ button {
 button:hover {
   background: #0f70d0;
 }
+// 🎮 Mini Game Setup
+const gameCanvas = document.getElementById("gameCanvas");
+const gtx = gameCanvas.getContext("2d");
+
+gameCanvas.width = 400;
+gameCanvas.height = 500;
+
+// 🚀 Player
+let player = {
+  x: 180,
+  y: 450,
+  width: 40,
+  height: 40,
+  speed: 5
+};
+
+// ☄️ Asteroids
+let asteroids = [];
+let score = 0;
+let gameOver = false;
+
+// Controls
+let keys = {};
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
+
+// Spawn asteroids
+function spawnAsteroid() {
+  asteroids.push({
+    x: Math.random() * 360,
+    y: -20,
+    size: 20 + Math.random() * 20,
+    speed: 2 + Math.random() * 3
+  });
+}
+
+// Draw player
+function drawPlayer() {
+  gtx.fillStyle = "cyan";
+  gtx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+// Draw asteroids
+function drawAsteroids() {
+  gtx.fillStyle = "gray";
+  asteroids.forEach(a => {
+    gtx.beginPath();
+    gtx.arc(a.x, a.y, a.size, 0, Math.PI * 2);
+    gtx.fill();
+  });
+}
+
+// Update positions
+function updateGame() {
+  if (gameOver) return;
+
+  // Move player
+  if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+  if (keys["ArrowRight"] && player.x < gameCanvas.width - player.width)
+    player.x += player.speed;
+
+  // Move asteroids
+  asteroids.forEach(a => a.y += a.speed);
+
+  // Collision detection
+  asteroids.forEach(a => {
+    if (
+      player.x < a.x + a.size &&
+      player.x + player.width > a.x - a.size &&
+      player.y < a.y + a.size &&
+      player.y + player.height > a.y - a.size
+    ) {
+      gameOver = true;
+      alert("Game Over! Final Score: " + score);
+      location.reload();
+    }
+  });
+
+  // Remove off-screen asteroids
+  asteroids = asteroids.filter(a => a.y < gameCanvas.height + 20);
+
+  score++;
+  document.getElementById("score").textContent = "Score: " + score;
+}
+
+// Game loop
+function gameLoop() {
+  gtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+  updateGame();
+  drawPlayer();
+  drawAsteroids();
+
+  requestAnimationFrame(gameLoop);
+}
+
+// Start game
+setInterval(spawnAsteroid, 800);
+gameLoop();
