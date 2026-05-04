@@ -47,3 +47,9 @@ function animate() {
 }
 
 animate();
+#gameCanvas {
+  display: block;
+  margin: 20px auto;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid white;
+}
